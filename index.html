@@ -94,7 +94,6 @@
     </div>
 
     <script>
-        // Kullanıcı veritabanı (Tarayıcı hafızasında saklanır)
         let users = JSON.parse(localStorage.getItem('portal_users')) || [
             { username: "Armo", password: "Bragovich", mustChangePass: false, isAdmin: true }
         ];
@@ -102,7 +101,6 @@
         let reminders = JSON.parse(localStorage.getItem('portal_reminders')) || [];
         let currentUser = JSON.parse(localStorage.getItem('portal_current_user')) || null;
 
-        // Sayfa açıldığında oturum kontrolü
         window.onload = function() {
             if (currentUser) {
                 document.getElementById('loginScreen').classList.add('hidden');
@@ -119,7 +117,7 @@
             const u = document.getElementById('loginUser').value.trim();
             const p = document.getElementById('loginPass').value;
 
-            const foundUser = users.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
+            let foundUser = users.find(x => x.username.toLowerCase() === u.toLowerCase() && x.password === p);
 
             if (foundUser) {
                 currentUser = foundUser;
@@ -141,7 +139,6 @@
             const newP = document.getElementById('newPass').value;
             if (!newP) return;
 
-            // Kullanıcının şifresini güncelle ve ilk giriş bayrağını kaldır
             users = users.map(u => {
                 if (u.username === currentUser.username) {
                     u.password = newP;
@@ -160,9 +157,8 @@
 
         function initApp() {
             document.getElementById('appContainer').classList.remove('hidden');
-            document.getElementById('currentUsernameDisplayinnerText').innerText = currentUser.username;
+            document.getElementById('currentUsernameDisplay').innerText = currentUser.username;
             
-            // Eğer Armo ise admin panelini aç
             if (currentUser.isAdmin || currentUser.username.toLowerCase() === "armo") {
                 document.getElementById('adminPanel').classList.remove('hidden');
                 renderUserList();
@@ -175,7 +171,6 @@
             location.reload();
         }
 
-        // Armo yeni kullanıcı ekler (mustChangePass: true olur)
         function addNewUser(e) {
             e.preventDefault();
             const name = document.getElementById('newUserName').value.trim();
@@ -201,7 +196,7 @@
             users.forEach(u => {
                 if(u.username !== "Armo") {
                     list.innerHTML += `<div class="flex justify-between items-center bg-gray-900 px-3 py-2 rounded-xl text-sm">
-                        <span>${u.username} ${u.mustChangePass ? '<span class="text-xs text-amber-400">(Şifre değiştirmesi bekleniyor)</span>' : ''}</span>
+                        <span>${u.username} ${u.mustChangePass ? '<span class="text-xs text-amber-400">(Şifre bekleniyor)</span>' : ''}</span>
                         <button onclick="deleteUser('${u.username}')" class="text-red-400 hover:text-red-300 text-xs"><i class="fa-solid fa-trash"></i></button>
                     </div>`;
                 }
@@ -214,7 +209,6 @@
             renderUserList();
         }
 
-        // Hatırlatıcılar
         function addReminder(e) {
             e.preventDefault();
             const text = document.getElementById('reminderInput').value.trim();
@@ -236,7 +230,12 @@
             });
         }
 
-        // Yapay Zeka Simülasyonu
+        function deleteReminder(idx) {
+            reminders.splice(idx, 1);
+            localStorage.setItem('portal_reminders', JSON.stringify(reminders));
+            renderReminders();
+        }
+
         function handleChat(e) {
             e.preventDefault();
             const input = document.getElementById('chatInput');
